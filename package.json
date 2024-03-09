@@ -1,10 +1,12 @@
 {
-  "name": "mini-vue",
+  "name": "cyb-mini-vue",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "dev": "vite . --port=8080",
+    "build": "vite build",
     "test": "vitest"
   },
   "engines": {
