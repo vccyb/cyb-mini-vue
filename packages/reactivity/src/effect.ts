@@ -8,7 +8,8 @@ class ReactiveEffect {
   }
 
   run() {
-    this._fn();
+    // 返回函数调用的结果
+    return this._fn();
   }
 }
 
@@ -19,6 +20,9 @@ class ReactiveEffect {
 export function effect(fn: Function) {
   const _effect = new ReactiveEffect(fn);
   _effect.run();
+
+  // effect 返回一个runner
+  return _effect.run.bind(_effect);
 }
 
 // 依赖收集的容器Map
