@@ -1,4 +1,4 @@
-import { reactive } from "../src/reactivity";
+import { reactive } from "../src/reactive";
 import { effect } from "../src/effect";
 
 describe("effect", () => {
@@ -26,7 +26,7 @@ describe("effect", () => {
   });
 
   // 测试effect要返回一个runner
-  it("runner", () => {
+  it("should return runner when call", () => {
     let foo = 10;
     const runner = effect(() => {
       foo++;
@@ -38,5 +38,36 @@ describe("effect", () => {
     const r = runner();
     expect(foo).toBe(12);
     expect(r).toBe("foo");
+  });
+
+  // scheduler 测试
+  it("scheduler", () => {
+    let dummy;
+    let run: any;
+    const scheduler = vi.fn(() => {
+      run = runner;
+    });
+    const obj: any = reactive({ foo: 1 });
+    const runner = effect(
+      () => {
+        dummy = obj.foo;
+      },
+      {
+        scheduler,
+      }
+    );
+
+    expect(scheduler).not.toHaveBeenCalled();
+    expect(dummy).toBe(1);
+
+    obj.foo++;
+
+    expect(scheduler).toHaveBeenCalledTimes(1);
+    expect(dummy).toBe(1);
+
+    // manually run
+    run();
+    // should have run
+    expect(dummy).toBe(2);
   });
 });

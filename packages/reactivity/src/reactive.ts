@@ -1,5 +1,3 @@
-// import { isObject } from "@mini-vue/shared";
-
 import { track, trigger } from "./effect";
 
 export function reactive(raw: object) {
