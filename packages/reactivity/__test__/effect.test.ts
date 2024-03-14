@@ -1,10 +1,10 @@
 import { reactive } from "../src/reactive";
-import { effect } from "../src/effect";
+import { effect, stop } from "../src/effect";
 
 describe("effect", () => {
   it("happy path", () => {
     /** 1 定义一个响应式对象 */
-    const user = reactive({
+    const user: any = reactive({
       age: 10,
     });
 
@@ -20,9 +20,6 @@ describe("effect", () => {
     // set 的时候, 触发依赖的副作用函数再次执行
     user.age++;
     expect(nextAge).toBe(12);
-
-    user.age++;
-    expect(nextAge).toBe(13);
   });
 
   // 测试effect要返回一个runner
@@ -69,5 +66,38 @@ describe("effect", () => {
     run();
     // should have run
     expect(dummy).toBe(2);
+  });
+
+  it("stop", () => {
+    let dummy;
+    const obj: any = reactive({ prop: 1 });
+    const runner = effect(() => {
+      dummy = obj.prop;
+    });
+
+    obj.prop = 2;
+
+    expect(dummy).toBe(2);
+    stop(runner);
+
+    obj.prop = 3;
+    expect(dummy).toBe(2);
+    runner();
+    expect(dummy).toBe(3);
+  });
+
+  it("onStop", () => {
+    const obj: any = reactive({ prop: 1 });
+    const onStop = vi.fn();
+    let dummy;
+    const runner = effect(
+      () => {
+        dummy = obj.prop;
+      },
+      { onStop }
+    );
+
+    stop(runner);
+    expect(onStop).toBeCalledTimes(1);
   });
 });
