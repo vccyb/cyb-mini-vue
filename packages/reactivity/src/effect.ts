@@ -74,7 +74,7 @@ export function track(target: object, key: string | symbol): void {
   /**
    * deps [] -> [set1, set2, set3]
    */
-  activeEffect.deps.push(depSet);
+  activeEffect?.deps.push(depSet);
 }
 
 // trigger 用于依赖相关的effect触发，修改了后重新执行副作用函数

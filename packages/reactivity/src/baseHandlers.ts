@@ -1,28 +1,40 @@
-import { isObject, extend } from "@mini-vue/shared";
-import { reactive } from "./reactive";
+import { track, trigger } from "./effect";
 
-/**
- * 获取 不同的代理的proxy的getter
- */
-function createGetter(isReadonly = false, shallow = false) {
-  // 本质返回的还是 proxy中的getter
-  return function get(target, key, receiver) {
-    const res = Reflect.get(target, key, receiver);
+const get = createGetter();
+const set = createSetter();
+const readonlyGet = createGetter(true);
 
-    // 是否只读代理
+function createGetter(isReadonly = false) {
+  return function get(target, key) {
+    const res = Reflect.get(target, key);
     if (!isReadonly) {
-      // TODO
+      track(target, key);
     }
-
-    // 浅层代理
-    if (shallow) {
-      return res;
-    }
-
-    // 如果我们代理的是一个对象，那么需要递归处理
-    if (isObject(res)) {
-    }
-
     return res;
   };
 }
+
+function createSetter() {
+  return function set(target, key, value) {
+    const res = Reflect.set(target, key, value);
+    trigger(target, key);
+    return res;
+  };
+}
+
+export const mutableHandlers = {
+  get,
+  set,
+};
+
+export const readonlyHandlers = {
+  get: readonlyGet,
+  set(target, key, value) {
+    // ! 抛出警告⚠️ 不可以被set
+    console.warn(
+      `key: ${key} set value: ${value} failed, because the target is readonly!`,
+      target
+    );
+    return true;
+  },
+};
