@@ -1,5 +1,6 @@
 // 用于记录当前run的effect，方便track进行获取
 let activeEffect: ReactiveEffect;
+let shouldTrack = false; // 是否应该收集依赖
 class ReactiveEffect {
   private _fn: Function;
   public deps: Array<Object> = [];
@@ -13,8 +14,17 @@ class ReactiveEffect {
   }
 
   run() {
+    // 已经被stop，这里就直接返回结果
+    if (!this.active) {
+      return this._fn();
+    }
+    // 未stop，继续往下走
+    shouldTrack = true;
     activeEffect = this;
-    return this._fn();
+    const result = this._fn();
+    // 由于运行原始依赖的时候，必然会触发代理对象的get操作，会重复进行依赖收集，所以调用完以后就关上开关，不允许再次收集依赖
+    shouldTrack = false;
+    return result;
   }
 
   stop() {
@@ -60,6 +70,9 @@ export function track(target: object, key: string | symbol): void {
     depSet = new Set();
     depsMap.set(key, depSet);
   }
+
+  if (!activeEffect) return;
+  if (!shouldTrack) return;
 
   // 收集依赖
   // 响应式变量 -> 副作用函数
