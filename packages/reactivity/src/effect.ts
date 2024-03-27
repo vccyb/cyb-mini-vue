@@ -1,3 +1,4 @@
+import { extend } from "@mini-vue/shared";
 // 用于记录当前run的effect，方便track进行获取
 let activeEffect: ReactiveEffect;
 let shouldTrack = false; // 是否应该收集依赖
@@ -109,7 +110,7 @@ export function trigger(target: object, key: string | symbol): void {
  */
 export function effect(fn: Function, options: any = {}) {
   const _effect = new ReactiveEffect(fn, options.scheduler);
-  _effect.onStop = options.onStop;
+  extend(_effect, options);
   _effect.run();
 
   // effect 返回一个runner
