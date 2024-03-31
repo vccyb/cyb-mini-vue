@@ -73,6 +73,7 @@ export function track(target: object, key: string | symbol): void {
   }
 
   if (!activeEffect) return;
+  // 如果不应该收集依赖，就应该直接返回
   if (!shouldTrack) return;
 
   // 收集依赖
