@@ -1,4 +1,4 @@
-import { reactive } from "../src/reactive";
+import { isProxy, reactive } from "../src/reactive";
 import { effect, stop } from "../src/effect";
 
 describe("effect", () => {
@@ -20,6 +20,8 @@ describe("effect", () => {
     // set 的时候, 触发依赖的副作用函数再次执行
     user.age++;
     expect(nextAge).toBe(12);
+
+    expect(isProxy(user)).toBe(true);
   });
 
   // 测试effect要返回一个runner
