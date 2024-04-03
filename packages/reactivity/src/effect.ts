@@ -92,6 +92,24 @@ export function track(target: object, key: string | symbol): void {
   activeEffect?.deps.push(depSet);
 }
 
+// 抽离dep的收集依赖逻辑
+export function trackEffect(dep) {
+  if (dep.has(activeEffect)) return;
+  dep.add(activeEffect);
+  activeEffect.deps.push(dep);
+}
+
+// 抽离dep的触发逻辑
+export function triggerEffect(dep) {
+  for (const effect of dep) {
+    if (effect.scheduler) {
+      effect.scheduler();
+    } else {
+      effect.run();
+    }
+  }
+}
+
 // trigger 用于依赖相关的effect触发，修改了后重新执行副作用函数
 export function trigger(target: object, key: string | symbol): void {
   const depsMap = targetMap.get(target);
@@ -119,4 +137,8 @@ export function effect(fn: Function, options: any = {}) {
   const runner: any = _effect.run.bind(_effect);
   runner.effect = _effect;
   return runner;
+}
+
+export function isTracking() {
+  return activeEffect && shouldTrack;
 }

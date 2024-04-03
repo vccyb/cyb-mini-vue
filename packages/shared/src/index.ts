@@ -9,4 +9,6 @@ export const isObject = (value: unknown) =>
 /** 合并两个对象 */
 export const extend = Object.assign;
 
-
+export const hasChanged = (val, newVal) => {
+  return !Object.is(val, newVal);
+};
