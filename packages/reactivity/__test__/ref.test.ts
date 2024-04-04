@@ -1,5 +1,5 @@
 import { reactive } from "../src/reactive";
-import { ref, isRef, unRef } from "../src/ref";
+import { ref, isRef, unRef, proxyRefs } from "../src/ref";
 import { effect } from "@mini-vue/reactivity";
 describe("ref", () => {
   it("happy path", () => {
@@ -69,5 +69,26 @@ describe("ref", () => {
     const a = ref(1);
     expect(unRef(a)).toBe(1);
     expect(unRef(1)).toBe(1);
+  });
+
+  it("proxyRefs", () => {
+    const user = {
+      age: ref(10),
+      name: "mini-vue",
+    };
+
+    const proxyUser = proxyRefs(user);
+
+    expect(user.age.value).toBe(10);
+    expect(proxyUser.age).toBe(10);
+    expect(proxyUser.name).toBe("mini-vue");
+
+    proxyUser.age = 20;
+    expect(proxyUser.age).toBe(20);
+    expect(user.age.value).toBe(20);
+
+    proxyUser.age = ref(10);
+    expect(proxyUser.age).toBe(10);
+    expect(user.age.value).toBe(10);
   });
 });

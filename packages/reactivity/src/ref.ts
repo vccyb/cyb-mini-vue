@@ -37,3 +37,22 @@ export function isRef(ref: RefImpl) {
 export function unRef(ref: RefImpl | any) {
   return isRef(ref) ? ref.value : ref;
 }
+
+export function proxyRefs(objectWithRefs) {
+  // * get: age (ref) -> return .value
+  // * get: not ref -> return value
+  return new Proxy(objectWithRefs, {
+    get(target, key) {
+      return unRef(Reflect.get(target, key));
+    },
+
+    set(target, key, value) {
+      const oldValue = target[key];
+      if (isRef(oldValue) && !isRef(value)) {
+        return (target[key].value = value);
+      } else {
+        return Reflect.set(target, key, value);
+      }
+    },
+  });
+}
