@@ -2,14 +2,14 @@ import { extend } from "@mini-vue/shared";
 // 用于记录当前run的effect，方便track进行获取
 let activeEffect: ReactiveEffect;
 let shouldTrack = false; // 是否应该收集依赖
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: Function;
   public deps: Array<Object> = [];
   public active: Boolean = true;
   public onStop?: () => void;
   public scheduler?: Function;
 
-  constructor(fn: Function, scheduler) {
+  constructor(fn: Function, scheduler?: Function) {
     this._fn = fn;
     this.scheduler = scheduler;
   }
