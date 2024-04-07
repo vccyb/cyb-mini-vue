@@ -103,4 +103,58 @@ describe("effect", () => {
     stop(runner);
     expect(onStop).toBeCalledTimes(1);
   });
+
+  it("should discover new branches while running auto", () => {
+    let dummy;
+    const obj = reactive({
+      prop: "value",
+      run: false,
+    });
+
+    const conditionalSpy = vi.fn(() => {
+      dummy = obj.run ? obj.prop : "other";
+    });
+
+    effect(conditionalSpy);
+
+    expect(dummy).toBe("other");
+    expect(conditionalSpy).toBeCalledTimes(1);
+
+    obj.prop = "Hi";
+    expect(dummy).toBe("other");
+    expect(conditionalSpy).toBeCalledTimes(1);
+
+    obj.run = true;
+    expect(dummy).toBe("Hi");
+    expect(conditionalSpy).toBeCalledTimes(2);
+
+    obj.prop = "World";
+    expect(dummy).toBe("World");
+    expect(conditionalSpy).toBeCalledTimes(3);
+  });
+
+  it("should not be triggered by mutating a property, which is used in an inactive branch", () => {
+    let dummy;
+    const obj = reactive({
+      prop: "value",
+      run: true,
+    });
+
+    const conditionalSpy = vi.fn(() => {
+      dummy = obj.run ? obj.prop : "other";
+    });
+
+    effect(conditionalSpy);
+
+    expect(dummy).toBe("value");
+    expect(conditionalSpy).toBeCalledTimes(1);
+
+    obj.run = false;
+    expect(dummy).toBe("other");
+    expect(conditionalSpy).toBeCalledTimes(2);
+
+    obj.prop = "value2";
+    expect(dummy).toBe("other");
+    expect(conditionalSpy).toBeCalledTimes(2);
+  });
 });
