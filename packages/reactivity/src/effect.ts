@@ -2,6 +2,7 @@ import { extend } from "@mini-vue/shared";
 // 用于记录当前run的effect，方便track进行获取
 let activeEffect: ReactiveEffect;
 let shouldTrack = false; // 是否应该收集依赖
+const effectStack: any[] = [];
 export class ReactiveEffect {
   private _fn: Function;
   public deps: Array<Object> = [];
@@ -19,17 +20,27 @@ export class ReactiveEffect {
     if (!this.active) {
       return this._fn();
     }
-    // 未stop，继续往下走
-    shouldTrack = true;
-    // + 清空依赖
-    cleanupEffect(this);
-    activeEffect = this;
-    const result = this._fn();
-    // 由于运行原始依赖的时候，必然会触发代理对象的get操作，会重复进行依赖收集，所以调用完以后就关上开关，不允许再次收集依赖
-    shouldTrack = false;
-    return result;
-  }
 
+    if (!effectStack.includes(this)) {
+      cleanupEffect(this);
+      let lastShouldTrack = shouldTrack;
+      try {
+        // 此时应该被收集依赖，可以给activeEffect赋值，去运行原始依赖
+        shouldTrack = true;
+        // 入栈
+        effectStack.push(this);
+        activeEffect = this;
+        return this._fn();
+      } finally {
+        // 出栈
+        effectStack.pop();
+        // 由于运行原始依赖的时候，会触发代理对象的get操作，会重复进行依赖收集，所以调用完以后就关上开关，不允许再次收集依赖
+        // 恢复 shouldTrack 开启之前的状态
+        shouldTrack = lastShouldTrack;
+        activeEffect = effectStack[effectStack.length - 1];
+      }
+    }
+  }
   stop() {
     if (this.active) {
       cleanupEffect(this);

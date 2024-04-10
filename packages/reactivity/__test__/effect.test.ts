@@ -157,4 +157,40 @@ describe("effect", () => {
     expect(dummy).toBe("other");
     expect(conditionalSpy).toBeCalledTimes(2);
   });
+
+  it("should allow nested effects", () => {
+    const nums = reactive({ num1: 0, num2: 1, num3: 2 });
+    const dummy: any = {};
+    const childSpy = vi.fn(() => {
+      dummy.num1 = nums.num1;
+    });
+    const childEffect = effect(childSpy);
+    const parentSpy = vi.fn(() => {
+      dummy.num2 = nums.num2;
+      childEffect();
+      dummy.num3 = nums.num3;
+    });
+    effect(parentSpy);
+
+    expect(dummy).toEqual({ num1: 0, num2: 1, num3: 2 });
+    expect(parentSpy).toHaveBeenCalledTimes(1);
+    expect(childSpy).toHaveBeenCalledTimes(2);
+
+    // 只触发childEffect
+    nums.num1 = 4;
+    expect(dummy).toEqual({ num1: 4, num2: 1, num3: 2 });
+    expect(parentSpy).toHaveBeenCalledTimes(1);
+    expect(childSpy).toHaveBeenCalledTimes(3);
+
+    // 触发parentEffect，触发一次childEffect
+    nums.num2 = 10;
+    expect(dummy).toEqual({ num1: 4, num2: 10, num3: 2 });
+    expect(parentSpy).toHaveBeenCalledTimes(2);
+    expect(childSpy).toHaveBeenCalledTimes(4);
+    // 触发parentEffect，触发一次childEffect
+    nums.num3 = 7;
+    expect(dummy).toEqual({ num1: 4, num2: 10, num3: 7 });
+    expect(parentSpy).toHaveBeenCalledTimes(3);
+    expect(childSpy).toHaveBeenCalledTimes(5);
+  });
 });
