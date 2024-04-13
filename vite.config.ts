@@ -7,6 +7,7 @@ export default defineConfig({
   build: {
     target: "es2020",
     outDir: "./dist",
+    minify: false,
     lib: {
       entry: resolvePath("./packages/vue/src/index.ts"),
       name: "MiniVue",
