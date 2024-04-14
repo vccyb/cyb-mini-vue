@@ -8,7 +8,11 @@ export const App = {
       {
         class: ["cyan", "success"],
       },
-      "hi" + this.msg
+      [
+        h("p", { class: "cyan" }, "hi"),
+        h("p", { class: "darkcyan" }, "chenyubo"),
+        h("p", { class: "darkviolet" }, "mini-vue"),
+      ]
     );
   },
   setup() {
