@@ -12,13 +12,14 @@ export const App = {
         h("p", { class: "cyan" }, "hi"),
         h("p", { class: "darkcyan" }, "chenyubo"),
         h("p", { class: "darkviolet" }, "mini-vue"),
+        h("p", { class: "darkcyan" }, `setupState msg: ${this.msg}`),
       ]
     );
   },
   setup() {
     // Composition API
     return {
-      msg: "mini-vue",
+      msg: "mini-chenyubo-vue",
     };
   },
 };

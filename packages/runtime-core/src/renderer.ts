@@ -64,7 +64,9 @@ function mountChildren(vnode, container) {
 }
 
 function setupRenderEffect(instance, container) {
-  const subTree = instance.render();
+  // const subTree = instance.render();
+  const { setupState } = instance;
+  const subTree = instance.render.call(setupState);
 
   // subTree 可能是 xxxx
   patch(subTree, container);
