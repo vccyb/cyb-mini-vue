@@ -18,8 +18,27 @@ function setupStatefulComponent(instance) {
 
   const { setup } = Component;
 
+  // ctx -- context
+  instance.proxy = new Proxy(
+    {},
+    {
+      get(target, key) {
+        const { setupState, vnode } = instance;
+        if (key === "$el") {
+          return vnode.el;
+        }
+        if (key in setupState) {
+          return setupState[key];
+        }
+      },
+    }
+  );
+
   if (setup) {
-    const setupResult = setup(instance.props);
+    const setupResult = setup();
+    // setupResult 可能是 function 也可能是 object
+    // - function 则将其作为组件的 render 函数
+    // - object 则注入到组件的上下文中
     handleSetupResult(instance, setupResult);
   }
 }
