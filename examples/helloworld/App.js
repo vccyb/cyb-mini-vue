@@ -8,6 +8,12 @@ export const App = {
       "div",
       {
         class: ["cyan", "success"],
+        onClick() {
+          console.log("click...");
+        },
+        onMousemove() {
+          console.log("mousemove...");
+        },
       },
       [
         h("p", { class: "cyan" }, "hi"),
