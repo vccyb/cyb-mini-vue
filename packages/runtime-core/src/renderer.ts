@@ -32,6 +32,7 @@ function processComponent(vnode, container) {
 }
 
 function mountElement(vnode, container) {
+  // 将 DOM对象挂载到 vnode 上，从而让组件实例可以访问
   const el = (vnode.el = document.createElement(vnode.type));
   const { children, shapeFlag } = vnode;
   if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
@@ -44,7 +45,12 @@ function mountElement(vnode, container) {
 
   const { props } = vnode;
   for (const [key, value] of Object.entries(props)) {
-    el.setAttribute(key, value);
+    const isOn = (key: string) => /^on[A-Z]/.test(key);
+    if (isOn(key)) {
+      el.addEventListener(key.slice(2).toLowerCase(), value);
+    } else {
+      el.setAttribute(key, value);
+    }
   }
   container.append(el);
 }
