@@ -1,15 +1,17 @@
 import { shallowReadonly } from "@mini-vue/reactivity";
 import { initProps } from "./componentProps";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
-
+import { emit } from "./componentEmit";
 export function createComponentInstance(vnode) {
   const component = {
     vnode,
     type: vnode.type,
     setupState: {},
     props: {},
+    emit: () => {},
   };
 
+  component.emit = emit as any;
   return component;
 }
 
@@ -27,7 +29,9 @@ function setupStatefulComponent(instance) {
   instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
 
   if (setup) {
-    const setupResult = setup(shallowReadonly(instance.props));
+    const setupResult = setup(shallowReadonly(instance.props), {
+      emit: instance.emit.bind(null, instance),
+    });
     // setupResult 可能是 function 也可能是 object
     // - function 则将其作为组件的 render 函数
     // - object 则注入到组件的上下文中
