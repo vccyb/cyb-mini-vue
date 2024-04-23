@@ -10,6 +10,10 @@ export const App = {
       console.log("onAdd", args);
     };
 
-    return h("div", {}, [h(Foo, { onAdd })]);
+    const onAddValue = () => {
+      console.log("onAddValue");
+    };
+
+    return h("div", {}, [h(Foo, { onAdd, onAddValue })]);
   },
 };

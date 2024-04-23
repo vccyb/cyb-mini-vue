@@ -6,8 +6,14 @@ export function emit(instance, event, ...args) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
+  const camelize = (str: string) => {
+    return str.replace(/-(\w)/g, (_, c) => {
+      return c ? c.toUpperCase() : "";
+    });
+  };
+
   const toHandlerKey = (str: string) => {
-    return str ? "on" + capitalize(str) : "";
+    return str ? "on" + capitalize(camelize(str)) : "";
   };
 
   const handlerKey = toHandlerKey(event);
