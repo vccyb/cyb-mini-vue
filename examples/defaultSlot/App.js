@@ -6,6 +6,10 @@ export const App = {
     return {};
   },
   render() {
+    // const foo = h(Foo, {}, [
+    //   h("p", {}, "default slot"),
+    //   h("p", {}, "plasticine"),
+    // ]);
     const foo = h(Foo, {}, h("p", {}, "default slot"));
     return h("div", {}, [foo]);
   },
